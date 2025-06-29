@@ -1,0 +1,496 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Past Papers</title>
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        /* ===== RESET & BASE STYLES ===== */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            /* Academic Color Palette */
+            --primary-color: #4f46e5;
+            --primary-hover: #4338ca;
+            --secondary-color: #f8fafc;
+            --accent-color: #e0e7ff;
+            --text-primary: #1e293b;
+            --text-secondary: #64748b;
+            --border-color: #e2e8f0;
+            --shadow-light: 0 1px 3px rgba(0, 0, 0, 0.1);
+            --shadow-medium: 0 4px 6px rgba(0, 0, 0, 0.1);
+            --shadow-heavy: 0 10px 25px rgba(0, 0, 0, 0.15);
+            --border-radius: 12px;
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            line-height: 1.6;
+            color: var(--text-primary);
+            background: linear-gradient(135deg, #f8fafc 0%, #e0e7ff 100%);
+            min-height: 100vh;
+        }
+
+        /* ===== HEADER STYLES ===== */
+        .header {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid var(--border-color);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            padding: 1.5rem 0;
+        }
+
+        .header-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 1rem;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 1.75rem;
+            font-weight: 700;
+            color: var(--primary-color);
+            margin-bottom: 0.5rem;
+        }
+
+        .header p {
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+            font-weight: 400;
+        }
+
+        /* ===== MAIN CONTAINER ===== */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem 1rem 4rem;
+        }
+
+        /* ===== GRID LAYOUT ===== */
+        .papers-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 1.5rem;
+            margin-top: 2rem;
+        }
+
+        /* ===== SUBJECT CARD STYLES ===== */
+        .subject-card {
+            background: white;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow-light);
+            padding: 1.5rem;
+            transition: var(--transition);
+            border: 1px solid var(--border-color);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .subject-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--primary-color), #8b5cf6);
+            transform: scaleX(0);
+            transition: var(--transition);
+        }
+
+        .subject-card:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-heavy);
+        }
+
+        .subject-card:hover::before {
+            transform: scaleX(1);
+        }
+
+        .subject-name {
+            font-size: 1.125rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 1rem;
+            line-height: 1.4;
+        }
+
+        /* ===== DOWNLOAD BUTTON STYLES ===== */
+        .download-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: var(--primary-color);
+            color: white;
+            text-decoration: none;
+            padding: 0.75rem 1.25rem;
+            border-radius: 8px;
+            font-weight: 500;
+            font-size: 0.9rem;
+            transition: var(--transition);
+            border: none;
+            cursor: pointer;
+            min-height: 44px; /* Touch-friendly minimum */
+            justify-content: center;
+            width: 100%;
+        }
+
+        .download-btn:hover {
+            background: var(--primary-hover);
+            transform: translateY(-1px);
+            box-shadow: var(--shadow-medium);
+        }
+
+        .download-btn:active {
+            transform: translateY(0);
+        }
+
+        .download-icon {
+            font-size: 1rem;
+            transition: var(--transition);
+        }
+
+        .download-btn:hover .download-icon {
+            transform: translateY(1px);
+        }
+
+        /* ===== SCROLL TO TOP BUTTON ===== */
+        .scroll-to-top {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: var(--shadow-medium);
+            transition: var(--transition);
+            opacity: 0;
+            visibility: hidden;
+            transform: scale(0.8);
+            z-index: 1000;
+        }
+
+        .scroll-to-top.visible {
+            opacity: 1;
+            visibility: visible;
+            transform: scale(1);
+        }
+
+        .scroll-to-top:hover {
+            background: var(--primary-hover);
+            transform: scale(1.1);
+        }
+
+        .scroll-to-top:active {
+            transform: scale(0.95);
+        }
+
+        /* ===== RESPONSIVE BREAKPOINTS ===== */
+        
+        /* Small tablets and large phones */
+        @media (min-width: 480px) {
+            .container {
+                padding: 2.5rem 1.5rem 4rem;
+            }
+            
+            .papers-grid {
+                grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+                gap: 1.75rem;
+            }
+            
+            .subject-card {
+                padding: 2rem;
+            }
+            
+            .download-btn {
+                width: auto;
+                min-width: 160px;
+            }
+        }
+
+        /* Tablets */
+        @media (min-width: 768px) {
+            .header h1 {
+                font-size: 2.25rem;
+            }
+            
+            .header p {
+                font-size: 1rem;
+            }
+            
+            .container {
+                padding: 3rem 2rem 4rem;
+            }
+            
+            .papers-grid {
+                grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+                gap: 2rem;
+            }
+            
+            .subject-name {
+                font-size: 1.25rem;
+            }
+        }
+
+        /* Desktop */
+        @media (min-width: 1024px) {
+            .header h1 {
+                font-size: 2.5rem;
+            }
+            
+            .container {
+                padding: 3.5rem 2rem 4rem;
+            }
+            
+            .papers-grid {
+                grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+                gap: 2.5rem;
+            }
+            
+            .subject-card {
+                padding: 2.5rem;
+            }
+        }
+
+        /* Large desktop */
+        @media (min-width: 1200px) {
+            .papers-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+
+        /* ===== ACCESSIBILITY & FOCUS STYLES ===== */
+        .download-btn:focus,
+        .scroll-to-top:focus {
+            outline: 2px solid var(--primary-color);
+            outline-offset: 2px;
+        }
+
+        /* ===== SMOOTH SCROLLING ===== */
+        html {
+            scroll-behavior: smooth;
+        }
+
+        /* ===== LOADING ANIMATION ===== */
+        .subject-card {
+            animation: fadeInUp 0.6s ease-out;
+        }
+
+        .subject-card:nth-child(1) { animation-delay: 0.1s; }
+        .subject-card:nth-child(2) { animation-delay: 0.2s; }
+        .subject-card:nth-child(3) { animation-delay: 0.3s; }
+        .subject-card:nth-child(4) { animation-delay: 0.4s; }
+        .subject-card:nth-child(5) { animation-delay: 0.5s; }
+        .subject-card:nth-child(6) { animation-delay: 0.6s; }
+        .subject-card:nth-child(7) { animation-delay: 0.7s; }
+        .subject-card:nth-child(8) { animation-delay: 0.8s; }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- ===== HEADER SECTION ===== -->
+    <header class="header">
+        <div class="header-content">
+            <h1>Past Papers</h1>
+            <p>Semester 04</p>
+        </div>
+    </header>
+
+    <!-- ===== MAIN CONTENT ===== -->
+    <main class="container">
+        <div class="papers-grid">
+            <!-- Subject Card 1: Introduction to Artificial Intelligence -->
+            <div class="subject-card">
+                <h3 class="subject-name">Introduction to Artificial Intelligence</h3>
+                <a href="https://drive.google.com/file/d/1uESwSEna5CDXXtIxg08gLpniIno-1Ea8/view?usp=sharing" target="_blank" class="download-btn" download>
+                    <span class="download-icon">📄</span>
+                    View
+                </a>
+            </div>
+
+            <!-- Subject Card 2: Human Computer Interaction -->
+            <div class="subject-card">
+                <h3 class="subject-name">Human Computer Interaction</h3>
+                <a href="https://drive.google.com/file/d/1AoKG7Li4QfiKGRPoeoM3jiWd5sCtWl5d/view?usp=sharing" target="_blank" class="download-btn" download>
+                    <span class="download-icon">📄</span>
+                    View
+                </a>
+            </div>
+
+            <!-- Subject Card 3: Software Architecture and Design Patterns -->
+            <div class="subject-card">
+                <h3 class="subject-name">Software Architecture and Design Patterns</h3>
+                <a href="downloads/software-architecture-and-design-patterns.pdf" target="_blank" class="download-btn" download>
+                    <span class="download-icon">📄</span>
+                    View
+                </a>
+            </div>
+
+            <!-- Subject Card 4: Service Oriented Web Applications -->
+            <div class="subject-card">
+                <h3 class="subject-name">Service Oriented Web Applications</h3>
+                <a href="https://drive.google.com/file/d/1qP0hHoVe3_l7ilzOLspVekLlmDCbs2qx/view?usp=sharing" target="_blank" class="download-btn" download>
+                    <span class="download-icon">📄</span>
+                    View
+                </a>
+            </div>
+
+            <!-- Subject Card 5: Deductive Reasoning and Logical Programming -->
+            <div class="subject-card">
+                <h3 class="subject-name">Deductive Reasoning and Logical Programming</h3>
+                <a href="https://drive.google.com/file/d/17zoHTfLwMqFId3fdjOS6AjfcfpqzZJyc/view?usp=sharing" target="_blank" class="download-btn" download>
+                    <span class="download-icon">📄</span>
+                    View
+                </a>
+            </div>
+
+            <!-- Subject Card 6: Statistical Distribution and Inferences -->
+            <div class="subject-card">
+                <h3 class="subject-name">Statistical Distribution and Inferences</h3>
+                <a href="downloads/statistical-distribution-and-inferences.pdf" target="_blank" class="download-btn" download>
+                    <span class="download-icon">📄</span>
+                    View
+                </a>
+            </div>
+
+            <!-- Subject Card 7: Software Project Management -->
+            <div class="subject-card">
+                <h3 class="subject-name">Software Project Management</h3>
+                <a href="https://drive.google.com/file/d/1paq1mJQ9cqiSm4bMvXMCoxkU0-fMS1ka/view?usp=sharing" target="_blank" class="download-btn" download>
+                    <span class="download-icon">📄</span>
+                    View
+                </a>
+            </div>
+
+            <!-- Subject Card 8: Software Quality Assurance -->
+            <div class="subject-card">
+                <h3 class="subject-name">Software Quality Assurance</h3>
+                <a href="downloads/software-quality-assurance.pdf" target="_blank" class="download-btn" download>
+                    <span class="download-icon">📄</span>
+                    View
+                </a>
+            </div>
+        </div>
+    </main>
+
+    <!-- ===== SCROLL TO TOP BUTTON ===== -->
+    <button class="scroll-to-top" id="scrollToTop" aria-label="Scroll to top">
+        ⬆️
+    </button>
+
+    <script>
+        // ===== SCROLL TO TOP FUNCTIONALITY =====
+        const scrollToTopBtn = document.getElementById('scrollToTop');
+
+        // Show/hide scroll to top button based on scroll position
+        function toggleScrollButton() {
+            if (window.pageYOffset > 300) {
+                scrollToTopBtn.classList.add('visible');
+            } else {
+                scrollToTopBtn.classList.remove('visible');
+            }
+        }
+
+        // Smooth scroll to top when button is clicked
+        function scrollToTop() {
+            window.scrollTo({
+                top: 0,
+                behavior: 'smooth'
+            });
+        }
+
+        // Event listeners
+        window.addEventListener('scroll', toggleScrollButton);
+        scrollToTopBtn.addEventListener('click', scrollToTop);
+
+        // ===== DOWNLOAD BUTTON FEEDBACK =====
+        const downloadButtons = document.querySelectorAll('.download-btn');
+
+        downloadButtons.forEach(button => {
+            button.addEventListener('click', function(e) {
+                // Note: In a real implementation, you would handle the actual file download
+                // For now, we'll just show a brief visual feedback
+                const originalText = this.innerHTML;
+                this.innerHTML = '<span class="download-icon">⬇️</span> Downloading...';
+                this.style.background = '#059669';
+                
+                setTimeout(() => {
+                    this.innerHTML = originalText;
+                    this.style.background = '';
+                }, 1500);
+            });
+        });
+
+        // ===== KEYBOARD NAVIGATION ENHANCEMENT =====
+        document.addEventListener('keydown', function(e) {
+            // Allow Enter key to trigger download buttons
+            if (e.key === 'Enter' && e.target.classList.contains('download-btn')) {
+                e.target.click();
+            }
+            
+            // Allow Enter or Space to trigger scroll to top
+            if ((e.key === 'Enter' || e.key === ' ') && e.target.id === 'scrollToTop') {
+                e.preventDefault();
+                scrollToTop();
+            }
+        });
+
+        // ===== TOUCH FEEDBACK FOR MOBILE =====
+        if ('ontouchstart' in window) {
+            downloadButtons.forEach(button => {
+                button.addEventListener('touchstart', function() {
+                    this.style.transform = 'scale(0.98)';
+                });
+                
+                button.addEventListener('touchend', function() {
+                    this.style.transform = '';
+                });
+            });
+        }
+
+        // ===== PERFORMANCE OPTIMIZATION =====
+        // Throttle scroll event for better performance
+        let scrollTimeout;
+        function throttledScrollHandler() {
+            if (!scrollTimeout) {
+                scrollTimeout = setTimeout(() => {
+                    toggleScrollButton();
+                    scrollTimeout = null;
+                }, 16); // ~60fps
+            }
+        }
+
+        window.removeEventListener('scroll', toggleScrollButton);
+        window.addEventListener('scroll', throttledScrollHandler, { passive: true });
+    </script>
+</body>
+</html>
